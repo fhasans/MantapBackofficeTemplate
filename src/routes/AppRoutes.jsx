@@ -1,63 +1,54 @@
 import React from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
 
-// Import Pages
-import DashboardPage from '../components/pages/DashboardPage';
+import {
+  KeyMetricsPage,
+  ChartAnalysisPage,
+  TopLeaderboardsPage
+} from '../components/pages/BackofficeDashboard';
+import MerchantListPage from '../components/pages/MerchantListPage';
+import ApprovalPage from '../components/pages/ApprovalPage';
 import HistoryPage from '../components/pages/HistoryPage';
-import QrisPage from '../components/pages/QrisPage';
+import SettlementPage from '../components/pages/SettlementPage';
+import { RoleManagementPage, AuditLogPage } from '../components/pages/AdminPages';
 import HelpPage from '../components/pages/HelpPage';
-import { DashboardSkeleton, PageSkeleton } from '../components/ui/Skeleton';
 
-// Import Skeletons
-
-const AppRoutes = ({ 
-  currentPage, 
-  setCurrentPage, 
-  isLoading, 
-  data, 
-  showBalance, 
-  setShowBalance 
+const AppRoutes = ({
+  stats, trendData, compositionData, topMerchants, topRegions,
+  merchants, registrations, transactions
 }) => {
+  return (
+    <Routes>
+      <Route path="/" element={<Navigate to="/dashboard/metrics" replace />} />
+      <Route path="/dashboard" element={<Navigate to="/dashboard/metrics" replace />} />
 
-  // 1. LOGIC LOADING (Tampilkan Skeleton)
-  if (isLoading) {
-    if (currentPage === 'dashboard') {
-        return <DashboardSkeleton />;
-    } else {
-        return <PageSkeleton />;
-    }
-  }
+      {/* MODULE 1: DASHBOARD */}
+      <Route path="/dashboard/metrics" element={<KeyMetricsPage stats={stats} />} />
+      <Route path="/dashboard/charts" element={<ChartAnalysisPage trendData={trendData} compositionData={compositionData} />} />
+      <Route path="/dashboard/leaderboards" element={<TopLeaderboardsPage merchants={topMerchants} regions={topRegions} />} />
 
-  // 2. LOGIC ROUTING (Tampilkan Halaman Asli)
-  switch(currentPage) {
-    case 'dashboard':
-      return (
-        <DashboardPage 
-          data={data}
-          showBalance={showBalance}
-          setShowBalance={setShowBalance}
-          onNavigate={setCurrentPage}
-        />
-      );
-    
-    case 'history':
-      return <div className="animation-fade-in"><HistoryPage /></div>;
-      
-    case 'qris':
-      return <div className="animation-fade-in"><QrisPage onBack={() => setCurrentPage('dashboard')} /></div>;
+      {/* MODULE 2: MERCHANT MANAGEMENT */}
+      <Route path="/merchant/list" element={<MerchantListPage merchants={merchants} />} />
+      <Route path="/merchant/approval" element={<ApprovalPage registrations={registrations} />} />
 
-    case 'help':
-      return <div className="animation-fade-in"><HelpPage onBack={() => setCurrentPage('dashboard')} /></div>;
-      
-    default:
-      return (
-        <div className="flex flex-col items-center justify-center h-96 text-slate-400">
-          <p className="text-lg font-semibold">Halaman "{currentPage}" sedang dalam pengembangan.</p>
-          <button onClick={() => setCurrentPage('dashboard')} className="mt-4 text-mantap-blue hover:underline">
-            Kembali ke Dashboard
-          </button>
-        </div>
-      );
-  }
+      {/* MODULE 3: ONBOARDING (Mapped to Approval page for now) */}
+      <Route path="/onboarding/logs" element={<ApprovalPage registrations={registrations} />} />
+
+      {/* MODULE 4: TRANSACTIONS */}
+      <Route path="/transactions/global" element={<HistoryPage transactions={transactions} />} />
+      <Route path="/transactions/fraud" element={<HistoryPage transactions={transactions} filter="fraud" />} />
+
+      {/* MODULE 5: FINANCE */}
+      <Route path="/finance/settlement" element={<SettlementPage />} />
+
+      {/* MODULE 6: ADMIN */}
+      <Route path="/admin/roles" element={<RoleManagementPage />} />
+      <Route path="/admin/audit" element={<AuditLogPage />} />
+
+      <Route path="/help" element={<HelpPage />} />
+      <Route path="*" element={<div className="p-8">Halaman tidak ditemukan</div>} />
+    </Routes>
+  );
 };
 
 export default AppRoutes;

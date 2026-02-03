@@ -1,33 +1,29 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 
 // Auth & Layout
 import LoginPage from './components/auth/LoginPage';
 import Sidebar from './components/layout/Sidebar';
 import Navbar from './components/layout/Navbar';
 
-// Routing Logic (Pemisahan Code)
+// Routing Logic
 import AppRoutes from './routes/AppRoutes';
 
-// Data
-import { settlementData } from './data/mockData';
+// --- DATA BACKOFFICE ---
+import {
+  bankStats, transactionTrend, paymentComposition,
+  topMerchants, topRegions, masterMerchantList,
+  registrationQueue, globalTransactions
+} from './data/backofficeData';
 
 function App() {
-  // --- STATE MANAGEMENT ---
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
-
-  // UI State
-  const [showBalance, setShowBalance] = useState(true);
   const [ttsEnabled, setTtsEnabled] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  
-  // Navigation & Loading State
-  const [currentPage, setCurrentPage] = useState('dashboard');
-  const [isContentLoading, setIsContentLoading] = useState(false);
+  const [showBalance, setShowBalance] = useState(true);
 
-  // --- EFFECTS ---
-  
-  // 1. Cek Login saat awal buka
+  // Authentication Check
   useEffect(() => {
     const loggedInUser = localStorage.getItem('isLoggedIn');
     if (loggedInUser === 'true') {
@@ -36,18 +32,6 @@ function App() {
     setIsLoadingAuth(false);
   }, []);
 
-  // 2. Simulasi Loading saat ganti halaman
-  useEffect(() => {
-    if (isAuthenticated) {
-      setIsContentLoading(true);
-      const timer = setTimeout(() => {
-        setIsContentLoading(false);
-      }, 800); // 0.8 detik loading
-      return () => clearTimeout(timer);
-    }
-  }, [currentPage, isAuthenticated]);
-
-  // --- HANDLERS ---
   const handleLogin = () => {
     localStorage.setItem('isLoggedIn', 'true');
     setIsAuthenticated(true);
@@ -56,48 +40,46 @@ function App() {
   const handleLogout = () => {
     localStorage.removeItem('isLoggedIn');
     setIsAuthenticated(false);
-    setCurrentPage('dashboard');
+    // Reload to clear router state or redirect to '/' which will show Login if strict
+    window.location.href = '/';
   };
 
-  // --- RENDER ---
   if (isLoadingAuth) return null;
   if (!isAuthenticated) return <LoginPage onLogin={handleLogin} />;
 
   return (
     <div className="flex min-h-screen bg-slate-50 font-sans">
-      
-      {/* Sidebar Navigasi */}
-      <Sidebar 
-        isOpen={isSidebarOpen} 
+      <Sidebar
+        isOpen={isSidebarOpen}
         toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
-        currentPage={currentPage}
-        setPage={setCurrentPage}
         onLogout={handleLogout}
       />
 
       <div className="flex-1 flex flex-col min-w-0 transition-all duration-300">
-        
-        {/* Header Navbar */}
-        <Navbar 
-          ttsEnabled={ttsEnabled} 
+        <Navbar
+          ttsEnabled={ttsEnabled}
           setTtsEnabled={setTtsEnabled}
-          toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} 
+          toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
           onLogout={handleLogout}
         />
 
-        {/* Konten Utama (Routing ditangani di sini) */}
-        <main className="flex-1 p-4 md:p-8 overflow-y-auto h-[calc(100vh-64px)]">
+        <main className="flex-1 p-4 md:p-8 overflow-y-auto h-[calc(100vh-64px)] scroll-smooth">
           <div className="max-w-7xl mx-auto">
-            
-            <AppRoutes 
-              currentPage={currentPage}
-              setCurrentPage={setCurrentPage}
-              isLoading={isContentLoading}
-              data={settlementData}
+            <AppRoutes
+              // Data Props
+              stats={bankStats}
+              trendData={transactionTrend}
+              compositionData={paymentComposition}
+              topMerchants={topMerchants}
+              topRegions={topRegions}
+              merchants={masterMerchantList}
+              registrations={registrationQueue}
+              transactions={globalTransactions}
+
+              // Utils
               showBalance={showBalance}
               setShowBalance={setShowBalance}
             />
-
           </div>
         </main>
       </div>

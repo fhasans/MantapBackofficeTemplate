@@ -1,43 +1,54 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+import {
+  KeyMetricsPage,
+  ChartAnalysisPage,
+  TopLeaderboardsPage
+} from './BackofficeDashboard';
 
-// Import Components Dashboard
-import SettlementCard from '../dashboard/SettlementCard';
-import TransactionTable from '../dashboard/TransactionTable';
-import QuickActions from '../dashboard/QuickActions';
-import HelpWidget from '../dashboard/HelpWidget';
+const DashboardPage = ({
+  stats,
+  trendData,
+  compositionData,
+  topMerchants,
+  topRegions
+}) => {
+  const location = useLocation();
 
-const DashboardPage = ({ data, showBalance, setShowBalance, onNavigate }) => {
+  // Handle hash scrolling specifically after render
+  useEffect(() => {
+    if (location.hash) {
+      const id = location.hash.replace('#', '');
+      const element = document.getElementById(id);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  }, [location]);
+
   return (
-    <>
-      <div className="mb-8 animation-fade-in">
-        <h1 className="text-2xl font-bold text-slate-800">Dashboard Keuangan</h1>
-        <p className="text-slate-500 text-sm mt-1">
-          Halo, {data.merchantName}! Berikut laporan hari ini.
-        </p>
-      </div>
+    <div className="space-y-12 pb-20">
+      {/* Section A: Key Metrics */}
+      <section id="dashboard-metrics" className="scroll-mt-24">
+        <KeyMetricsPage stats={stats} />
+      </section>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 animation-fade-in">
-        {/* Kolom Kiri */}
-        <div className="xl:col-span-2 space-y-6">
-          <SettlementCard 
-            todayAmount={data.todayAmount}
-            floatAmount={data.floatAmount}
-            showBalance={showBalance}
-            setShowBalance={setShowBalance}
-          />
-          <TransactionTable history={data.history} />
-        </div>
+      {/* Section B: Charts */}
+      <section id="dashboard-charts" className="scroll-mt-24">
+        <ChartAnalysisPage
+          trendData={trendData}
+          compositionData={compositionData}
+        />
+      </section>
 
-        {/* Kolom Kanan */}
-        <div className="space-y-6">
-          <QuickActions 
-              merchantId={data.merchantId} 
-              onNavigate={onNavigate}
-          />
-          <HelpWidget onNavigate={onNavigate} />
-        </div>
-      </div>
-    </>
+      {/* Section C: Leaderboards */}
+      <section id="dashboard-leaderboard" className="scroll-mt-24">
+        <TopLeaderboardsPage
+          merchants={topMerchants}
+          regions={topRegions}
+        />
+      </section>
+    </div>
   );
 };
 
