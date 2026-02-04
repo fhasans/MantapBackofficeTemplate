@@ -1,50 +1,36 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { login, logout } from './store/slices/authSlice';
 
 // Auth & Layout
-import LoginPage from './components/auth/LoginPage';
-import Sidebar from './components/layout/Sidebar';
-import Navbar from './components/layout/Navbar';
+import LoginPage from './pages/auth/LoginPage';
+import Sidebar from './components/organisms/Sidebar';
+import Navbar from './components/organisms/Navbar';
 
 // Routing Logic
 import AppRoutes from './routes/AppRoutes';
 
-// --- DATA BACKOFFICE ---
-import {
-  bankStats, transactionTrend, paymentComposition,
-  topMerchants, topRegions, masterMerchantList,
-  registrationQueue, globalTransactions
-} from './data/backofficeData';
-
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoadingAuth, setIsLoadingAuth] = useState(true);
+  const dispatch = useDispatch();
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+
+  // UI State (Local)
   const [ttsEnabled, setTtsEnabled] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showBalance, setShowBalance] = useState(true);
 
-  // Authentication Check
-  useEffect(() => {
-    const loggedInUser = localStorage.getItem('isLoggedIn');
-    if (loggedInUser === 'true') {
-      setIsAuthenticated(true);
-    }
-    setIsLoadingAuth(false);
-  }, []);
+  // Note: Initial auth check is handled in slice initialState or can be refined here if verification is needed.
 
   const handleLogin = () => {
-    localStorage.setItem('isLoggedIn', 'true');
-    setIsAuthenticated(true);
+    dispatch(login());
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('isLoggedIn');
-    setIsAuthenticated(false);
-    // Reload to clear router state or redirect to '/' which will show Login if strict
+    dispatch(logout());
     window.location.href = '/';
   };
 
-  if (isLoadingAuth) return null;
   if (!isAuthenticated) return <LoginPage onLogin={handleLogin} />;
 
   return (
@@ -66,16 +52,6 @@ function App() {
         <main className="flex-1 p-4 md:p-8 overflow-y-auto h-[calc(100vh-64px)] scroll-smooth">
           <div className="max-w-7xl mx-auto">
             <AppRoutes
-              // Data Props
-              stats={bankStats}
-              trendData={transactionTrend}
-              compositionData={paymentComposition}
-              topMerchants={topMerchants}
-              topRegions={topRegions}
-              merchants={masterMerchantList}
-              registrations={registrationQueue}
-              transactions={globalTransactions}
-
               // Utils
               showBalance={showBalance}
               setShowBalance={setShowBalance}

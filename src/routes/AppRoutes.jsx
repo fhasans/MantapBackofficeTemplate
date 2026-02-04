@@ -5,38 +5,35 @@ import {
   KeyMetricsPage,
   ChartAnalysisPage,
   TopLeaderboardsPage
-} from '../components/pages/BackofficeDashboard';
-import MerchantListPage from '../components/pages/MerchantListPage';
-import ApprovalPage from '../components/pages/ApprovalPage';
-import HistoryPage from '../components/pages/HistoryPage';
-import SettlementPage from '../components/pages/SettlementPage';
-import { RoleManagementPage, AuditLogPage } from '../components/pages/AdminPages';
-import HelpPage from '../components/pages/HelpPage';
+} from '../pages/BackofficeDashboard';
+import MerchantListPage from '../pages/MerchantListPage';
+import ApprovalPage from '../pages/ApprovalPage';
+import HistoryPage from '../pages/HistoryPage';
+import SettlementPage from '../pages/SettlementPage';
+import { RoleManagementPage, AuditLogPage } from '../pages/AdminPages';
+import HelpPage from '../pages/HelpPage';
 
-const AppRoutes = ({
-  stats, trendData, compositionData, topMerchants, topRegions,
-  merchants, registrations, transactions
-}) => {
+const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/dashboard/metrics" replace />} />
       <Route path="/dashboard" element={<Navigate to="/dashboard/metrics" replace />} />
 
       {/* MODULE 1: DASHBOARD */}
-      <Route path="/dashboard/metrics" element={<KeyMetricsPage stats={stats} />} />
-      <Route path="/dashboard/charts" element={<ChartAnalysisPage trendData={trendData} compositionData={compositionData} />} />
-      <Route path="/dashboard/leaderboards" element={<TopLeaderboardsPage merchants={topMerchants} regions={topRegions} />} />
+      <Route path="/dashboard/metrics" element={<KeyMetricsPage />} />
+      <Route path="/dashboard/charts" element={<ChartAnalysisPage />} />
+      <Route path="/dashboard/leaderboards" element={<TopLeaderboardsPage />} />
 
       {/* MODULE 2: MERCHANT MANAGEMENT */}
-      <Route path="/merchant/list" element={<MerchantListPage merchants={merchants} />} />
-      <Route path="/merchant/approval" element={<ApprovalPage registrations={registrations} />} />
+      <Route path="/merchant/list" element={<MerchantListPage />} />
+      <Route path="/merchant/approval" element={<ApprovalPage />} />
 
       {/* MODULE 3: ONBOARDING (Mapped to Approval page for now) */}
-      <Route path="/onboarding/logs" element={<ApprovalPage registrations={registrations} />} />
+      <Route path="/onboarding/logs" element={<ApprovalPage />} />
 
       {/* MODULE 4: TRANSACTIONS */}
-      <Route path="/transactions/global" element={<HistoryPage transactions={transactions} />} />
-      <Route path="/transactions/fraud" element={<HistoryPage transactions={transactions} filter="fraud" />} />
+      <Route path="/transactions/global" element={<HistoryPage />} />
+      <Route path="/transactions/fraud" element={<HistoryPage filter="fraud" />} />
 
       {/* MODULE 5: FINANCE */}
       <Route path="/finance/settlement" element={<SettlementPage />} />
